@@ -433,6 +433,21 @@ class Client(object):
             raise ClientException('Memcached delete failed', response)
         raise gen.Return(response == const.DELETED or noreply)
 
+    @gen.coroutine
+    def delete_many(self, *keys, **kwargs):
+        """Deletes multiple keys from the memcache in serial
+
+        @return: Map of `delete` values, based on key
+  .
+        @param noreply: optional parameter instructs the server to not send the
+            reply.
+
+        """
+        result = {}
+        for key in keys:
+            result[key] = yield self.delete(key, **kwargs)
+        raise gen.Return(result)
+
     @acquire
     @gen.coroutine
     def incr(self, conn, key, value=1, noreply=False):

@@ -380,6 +380,37 @@ class ConnectionCommandsTest(BaseTest):
         self.assertEqual(test_value, None)
 
     @run_until_complete
+    def test_delete_many(self):
+        @gen.coroutine
+        def init_data():
+            key_noreply, value_noreply = 'key:no_repleay', 'value_norep'
+            yield self.check_setget(key_noreply, value_noreply)
+
+            key, value = b'key:delete', b'value'
+            yield self.check_setget(key, value)
+
+            key_str, value_str = 'key:delete1', 'value_str'
+            yield self.check_setget(key_str, value_str)
+            raise gen.Return([key_noreply, key, key_str])
+
+        keys = yield init_data()
+
+        is_deleted = yield self.mcache.delete_many(*keys)
+        for k, v in is_deleted.iteritems():
+            self.assertTrue(v)
+
+        keys = yield init_data()
+
+        is_deleted = yield self.mcache.delete_many(*keys, noreply=True)
+        for k, v in is_deleted.iteritems():
+            self.assertTrue(v)
+
+        # make sure value does not exists
+        for key in keys:
+            test_value = yield self.mcache.get(key)
+            self.assertEqual(test_value, None)
+
+    @run_until_complete
     def test_str_get(self):
         key1, value1 = 'key:multi_get:1', b'1'
         key2, value2 = 'key:multi_get:2', b'2'
