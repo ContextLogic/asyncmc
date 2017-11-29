@@ -411,6 +411,20 @@ class ConnectionCommandsTest(BaseTest):
             self.assertEqual(test_value, None)
 
     @run_until_complete
+    def test_set_many(self):
+        values = {
+            'key:set_many:1': b'1',
+            'key:set_many:2': b'2',
+        }
+        test_value = yield self.mcache.set_many(values)
+        for k, v in test_value.iteritems():
+            self.assertTrue(v)
+
+        test_value = yield self.mcache.set_many(values, noreply=True)
+        for k, v in test_value.iteritems():
+            self.assertTrue(v)
+
+    @run_until_complete
     def test_str_get(self):
         key1, value1 = 'key:multi_get:1', b'1'
         key2, value2 = 'key:multi_get:2', b'2'

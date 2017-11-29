@@ -267,6 +267,29 @@ class Client(object):
         raise gen.Return(resp)
 
     @gen.coroutine
+    def set_many(self, values, **kwargs):
+        """Sets multiple key to a value on the server
+        with an optional exptime (0 means don't auto-expire)
+
+        @param key: bytes or string, is the key of the item.
+        @param value: custom type, data to store.
+        @param exptime: Tells memcached the time which this value should
+            expire, either as a delta number of seconds, or an absolute
+            unix time-since-the-epoch value. See the memcached protocol
+            docs section "Storage Commands" for more info on <exptime>. We
+            default to 0 == cache forever.
+        @param noreply: optional parameter instructs the server to not
+        send the reply.
+
+        @return: dict of bool, True in case of success.
+
+        """
+        result = {}
+        for k, v in values.iteritems():
+            result[k] = yield self.set(k, v, **kwargs)
+        raise gen.Return(result)
+
+    @gen.coroutine
     def _multi_get(self, conn, *keys):
         # req  - get <key> [<key> ...]\r\n
         # resp - VALUE <key> <flags> <bytes> [<cas unique>]\r\n
