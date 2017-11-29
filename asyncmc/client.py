@@ -127,10 +127,11 @@ class Client(object):
         while resp != b'END\r\n':
             terms = resp.split()
 
-            if len(terms) == 2 and terms[0] == b'STAT':
-                result[terms[1]] = None
-            elif len(terms) == 3 and terms[0] == b'STAT':
-                result[terms[1]] = terms[2]
+            if terms[0] == b'STAT':
+                if len(terms) > 1:
+                    result[terms[1]] = terms[2]
+                else:
+                    result[terms[1]] = None
             else:
                 raise ClientException('stats failed', resp)
 
@@ -208,11 +209,15 @@ class Client(object):
         for each round-trip of L{get} before sending the next one.
 
         @param keys: list keys for the item being fetched.
-        @return: list of values for the specified keys.
+        @return: map of values for the specified keys.
         @raises: ValidationException, ClientException,
             and socket errors
         """
-        result = yield self._multi_get(conn, *self._key_type(key_list=keys))
+        keylist = self._key_type(key_list=keys)
+        result_list = yield self._multi_get(conn, *keylist)
+        result = {}
+        for i, k in enumerate(keylist):
+            result[k] = result_list[i]
         raise gen.Return(result)
 
     @acquire
@@ -260,6 +265,29 @@ class Client(object):
         resp = yield self._storage_command(
             conn, b'set', self._key_type(key=key), value, exptime, noreply)
         raise gen.Return(resp)
+
+    @gen.coroutine
+    def set_many(self, values, **kwargs):
+        """Sets multiple key to a value on the server
+        with an optional exptime (0 means don't auto-expire)
+
+        @param key: bytes or string, is the key of the item.
+        @param value: custom type, data to store.
+        @param exptime: Tells memcached the time which this value should
+            expire, either as a delta number of seconds, or an absolute
+            unix time-since-the-epoch value. See the memcached protocol
+            docs section "Storage Commands" for more info on <exptime>. We
+            default to 0 == cache forever.
+        @param noreply: optional parameter instructs the server to not
+        send the reply.
+
+        @return: dict of bool, True in case of success.
+
+        """
+        result = {}
+        for k, v in values.iteritems():
+            result[k] = yield self.set(k, v, **kwargs)
+        raise gen.Return(result)
 
     @gen.coroutine
     def _multi_get(self, conn, *keys):
@@ -427,6 +455,21 @@ class Client(object):
         if not noreply and response not in (const.DELETED, const.NOT_FOUND):
             raise ClientException('Memcached delete failed', response)
         raise gen.Return(response == const.DELETED or noreply)
+
+    @gen.coroutine
+    def delete_many(self, *keys, **kwargs):
+        """Deletes multiple keys from the memcache in serial
+
+        @return: Map of `delete` values, based on key
+  .
+        @param noreply: optional parameter instructs the server to not send the
+            reply.
+
+        """
+        result = {}
+        for key in keys:
+            result[key] = yield self.delete(key, **kwargs)
+        raise gen.Return(result)
 
     @acquire
     @gen.coroutine
