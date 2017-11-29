@@ -209,11 +209,15 @@ class Client(object):
         for each round-trip of L{get} before sending the next one.
 
         @param keys: list keys for the item being fetched.
-        @return: list of values for the specified keys.
+        @return: map of values for the specified keys.
         @raises: ValidationException, ClientException,
             and socket errors
         """
-        result = yield self._multi_get(conn, *self._key_type(key_list=keys))
+        keylist = self._key_type(key_list=keys)
+        result_list = yield self._multi_get(conn, *keylist)
+        result = {}
+        for i, k in enumerate(keylist):
+            result[k] = result_list[i]
         raise gen.Return(result)
 
     @acquire

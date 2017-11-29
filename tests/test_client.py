@@ -386,13 +386,13 @@ class ConnectionCommandsTest(BaseTest):
         yield self.mcache.set(key1, value1)
         yield self.mcache.set(key2, value2)
         test_value = yield self.mcache.multi_get(key1, key2)
-        self.assertEqual(test_value, [value1, value2])
+        self.assertEqual(test_value, {key1: value1, key2: value2})
 
         test_value = yield self.mcache.get(key1)
         test_value = yield self.mcache.multi_get('not' + key1, key2)
-        self.assertEqual(test_value, [None, value2])
+        self.assertEqual(test_value, {'not' + key1: None, key2: value2})
         test_value = yield self.mcache.multi_get()
-        self.assertEqual(test_value, [])
+        self.assertEqual(test_value, {})
 
     @run_until_complete
     def test_multi_get(self):
@@ -401,12 +401,12 @@ class ConnectionCommandsTest(BaseTest):
         yield self.mcache.set(key1, value1)
         yield self.mcache.set(key2, value2)
         test_value = yield self.mcache.multi_get(key1, key2)
-        self.assertEqual(test_value, [value1, value2])
+        self.assertEqual(test_value, {key1: value1, key2: value2})
 
         test_value = yield self.mcache.multi_get(b'not' + key1, key2)
-        self.assertEqual(test_value, [None, value2])
+        self.assertEqual(test_value, {b'not' + key1: None, key2: value2})
         test_value = yield self.mcache.multi_get()
-        self.assertEqual(test_value, [])
+        self.assertEqual(test_value, {})
 
     @run_until_complete
     def test_incr(self):
