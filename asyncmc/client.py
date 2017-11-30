@@ -170,6 +170,9 @@ class Client(object):
     def close(self):
         self.pool.clear()
 
+    def __del__(self):
+        self.close()
+
     def _value_type(self, value):
         flag = 0
         if isinstance(value, bytes):
