@@ -87,9 +87,20 @@ class Host(object):
             self.sock.close()
             self.sock = None
 
+    def raise_if_disconnect(self):
+        if hasattr(self, 'disconect_reason'):
+            raise exceptions.ConnectionDeadError(
+                'socket host "{}" port "{}" disconected because "{}"'.format(
+                    self.host,
+                    self.port,
+                    self.disconect_reason
+                )
+            )
+
     @gen.coroutine
     def send_cmd(self, cmd, noreply=False, stream=False):
-        self._ensure_connection()
+        if self._ensure_connection() is None:
+            self.raise_if_disconnect()
         cmd = cmd + "\r\n".encode()
         if stream:
             yield self.stream.write(cmd)
@@ -99,11 +110,4 @@ class Host(object):
         if not noreply and self.stream:
             response = yield self.stream.read_until(b'\r\n')
             raise gen.Return(response[:-2])
-        if hasattr(self, 'disconect_reason'):
-            raise exceptions.ConnectionDeadError(
-                'socket host "{}" port "{}" disconected because "{}"'.format(
-                    self.host,
-                    self.port,
-                    self.disconect_reason
-                )
-            )
+        self.raise_if_disconnect()
