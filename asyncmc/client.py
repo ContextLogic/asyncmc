@@ -343,7 +343,7 @@ class Client(object):
 
                     received[key] = val
                 else:
-                    raise ClientException('get{} failed'.format(cmd), line)
+                    raise ClientException('{} failed'.format(cmd), line)
                 line = yield stream.read_until(b'\n')
 
         if len(received) > len(keys):
@@ -563,7 +563,7 @@ class Client(object):
         resp = yield server.send_cmd(cmd, noreply=noreply)
 
         if not noreply and resp not in (const.STORED, const.NOT_STORED):
-            raise ClientException('stats "{}" failed'.format(cmd), resp)
+            raise ClientException('storage_command "{}" failed'.format(cmd), resp)
         raise gen.Return(resp == const.STORED or noreply)
 
     def _validate_key(self, key):
