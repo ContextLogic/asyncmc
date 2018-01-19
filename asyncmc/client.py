@@ -177,7 +177,7 @@ class Client(object):
         flag = 0
         if isinstance(value, bytes):
             pass
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             flag |= const.FLAG_STRING
             value = value.encode('utf-8')
         elif isinstance(value, bool):
@@ -185,6 +185,9 @@ class Client(object):
             value = str(int(value)).encode('utf-8')
         elif isinstance(value, int):
             flag |= const.FLAG_INTEGER
+            value = str(value).encode('utf-8')
+        elif isinstance(value, long):
+            flag |= const.FLAG_LONG
             value = str(value).encode('utf-8')
         else:
             try:
@@ -329,6 +332,8 @@ class Client(object):
                         val = bool(int(val))
                     elif flags & const.FLAG_INTEGER:
                         val = int(val)
+                    elif flags & const.FLAG_LONG:
+                        val = long(val)
                     elif flags & const.FLAG_JSON:
                         val = json.loads(val.decode('utf-8'))
                     elif flags & const.FLAG_PICKLE:
