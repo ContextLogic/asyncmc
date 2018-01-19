@@ -177,7 +177,7 @@ class Client(object):
         flag = 0
         if isinstance(value, bytes):
             pass
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             flag |= const.FLAG_STRING
             value = value.encode('utf-8')
         elif isinstance(value, bool):
