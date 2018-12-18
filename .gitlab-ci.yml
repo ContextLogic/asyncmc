@@ -29,5 +29,5 @@ upload_egg:
     # - devpi login $USERNAME --password=$PASSWORD
     # - devpi use $INDEX
     # - devpi upload
-  only:
-    - master
+  # only:
+  #   - master
