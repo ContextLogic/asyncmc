@@ -13,7 +13,7 @@ upload_egg:
     - cd Python-$version
     - ./configure
     - make
-    - ptyhon --version
+    - python --version
     - cd ..
     # Check if the package is actually installable
     - apt-get install -y python-dev libffi-dev
