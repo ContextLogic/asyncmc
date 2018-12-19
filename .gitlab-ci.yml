@@ -22,22 +22,10 @@ upload_egg:
     - pip install .
     - pip show $CI_PROJECT_NAME
 
-  #   # Upload to Wish Pypi
-  #   - devpi use $PYPI_SERVER
-  #   - devpi login $USERNAME --password=$PASSWORD
-  #   - devpi use $INDEX
-  #   - devpi upload
-  # only:
-  #   - master
-
-
-    # - apt-get install -y curl software-properties-common
-    # # test python
-    # - add-apt-repository ppa:jonathonf/python-2.7
-    # - apt-get update
-    # - apt-get install -y python2.7
-    # # Check if the package is actually installable
-    # - apt-get install -y python-dev libffi-dev
-    # - curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-    # - python get-pip.py
-    # - pip install -U devpi-client
+    # Upload to Wish Pypi
+    - devpi use $PYPI_SERVER
+    - devpi login $USERNAME --password=$PASSWORD
+    - devpi use $INDEX
+    - devpi upload
+  only:
+    - master
