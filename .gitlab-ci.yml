@@ -4,7 +4,7 @@ upload_egg:
   script:
     # add git as part of the egg upload
     - apt-get update -y && apt-get install -y git
-    - apt-get install -y curl
+    - apt-get install -y curl software-properties-common
     # test python
     - add-apt-repository ppa:jonathonf/python-2.7
     - apt-get update
