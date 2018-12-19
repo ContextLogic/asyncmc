@@ -13,6 +13,7 @@ upload_egg:
     - pip install -U devpi-client
 
     # make sure there's only 1 "version=" line in the setup.py file
+    - sed -n "/.*\(version\).*=.*\'.*/p" setup.py | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/' | wc -l
     - (if [ "$(sed -n "/.*\(version\).*=.*\'.*/p" setup.py | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/' | wc -l)" == "1" ]; then echo "Found the version number"; else echo "Fail"; exit 33; fi);
     # update version to put custom ContextLogic version
     - version_origin=$(sed -n "/.*\(version\).*=.*\'.*/p" setup.py | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/')
@@ -21,10 +22,10 @@ upload_egg:
     - pip install .
     - pip show $CI_PROJECT_NAME
 
-    # Upload to Wish Pypi
-    - devpi use $PYPI_SERVER
-    - devpi login $USERNAME --password=$PASSWORD
-    - devpi use $INDEX
-    - devpi upload
-  only:
-    - master
+  #   # Upload to Wish Pypi
+  #   - devpi use $PYPI_SERVER
+  #   - devpi login $USERNAME --password=$PASSWORD
+  #   - devpi use $INDEX
+  #   - devpi upload
+  # only:
+  #   - master
